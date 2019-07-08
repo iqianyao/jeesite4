@@ -101,8 +101,11 @@ jdbc:
 #    # 是否自动回收泄露的连接和超时时间，单位秒（35分钟）（4.0.6+）
 #    removeAbandoned: true
 #    removeAbandonedTimeout: 2100
+#
+#    # Oracle 下会自动开启 PSCache，并指定每个连接上 PSCache 大小。若不指定，则与 maxActive 相同（4.1.5+）
+#    maxPoolPreparedStatementPerConnectionSize: ~
 
-#  # 多数据源名称列表，启用方式：@MyBatisDao(dataSourceName="ds2")
+#  # 多数据源名称列表，多个用逗号隔开，使用方法：@MyBatisDao(dataSourceName="ds2")
 #  dataSourceNames: ds2
 #  
 #  # 多数据源配置：ds2
@@ -124,8 +127,14 @@ jdbc:
 #  # JTA 分布式事务（v4.0.4+）
 #  jta:
 #    enabled: false
-#    # 事务超时时间，单位毫秒（3分钟）
-#    transactionTimeout: 180000
+#  注意：如果报  oracle.jdbc.xa.OracleXAResource.recover 错误，则需要授权如下：
+#  grant select on sys.dba_pending_transactions to jeesite;
+#  grant select on sys.pending_trans$ to jeesite;
+#  grant select on sys.dba_2pc_pending to jeesite;
+#  grant execute on sys.dbms_system to jeesite;
+
+#  # 事务超时时间，单位秒（30分钟）（v4.1.5+）
+#  transactionTimeout: 1800
 
 #  # 表名前缀
 #  tablePrefix: js_
@@ -168,7 +177,7 @@ spring:
 #    # 缓存及会话共享（专业版）
 #    isClusterMode: false
 #    # 清理全部缓存按钮所清理的缓存列表
-#    clearNames: sysCache,corpCache,userCache,cmsCache
+#    clearNames: sysCache,corpCache,userCache,cmsCache,msgPcPoolCache
 
 # 日志配置
 logging:
@@ -209,7 +218,6 @@ logging:
 #      "employee":{"dao":"employeeDao","loginView":"","indexView":"modules/sys/sysIndex"},
 #      "member":{"dao":"memberDao","loginView":"","indexView":"modules/sys/sysIndexMember"},
 #      "btype":{"dao":"btypeInfoDao","loginView":"","indexView":"modules/sys/sysIndexBtype"},
-#      "persion":{"dao":"persionDao","loginView":"","indexView":"modules/sys/sysIndexPersion"},
 #      "expert":{"dao":"expertDao","loginView":"","indexView":"modules/sys/sysIndexExpert"}
 #    }
 #
@@ -246,6 +254,9 @@ logging:
 #      expandLevel: -1,
 #      remarks: ""
 #    }]
+#    
+#  # 管理功能的控制权限类型（1拥有的权限 2管理的权限）（v4.1.5+）
+#  adminCtrlPermi: 2
 #
 #  # 多租户模式（SAAS模式）（专业版）
 #  useCorpModel: false
@@ -381,7 +392,10 @@ logging:
 #
 #  # 是否允许接收跨域的Cookie凭证数据
 ##  accessControlAllowCredentials: true
-
+#
+#  # 允许的网站来源地址，不设置为全部地址（避免一些跨站点请求伪造CSRF）
+#  allowReferers: http://127.0.0.1,http://localhost
+#  allowReferers: ~
 #
 #  # 是否在登录后生成新的Session（默认false）
 #  isGenerateNewSessionAfterLogin: false
@@ -472,7 +486,13 @@ logging:
 #  
 #  # 静态文件后缀，排除的url路径，指定哪些uri路径不进行静态文件过滤。
 #  staticFileExcludeUri: /druid/
-#
+#  
+#  # 静态资源路径前缀，可做CDN加速优化
+#  staticPrefix: /static
+#  
+#  # 严格模式（更严格的数据安全验证）
+#  strictMode: false
+#  
 #  # 自定义正则表达式验证（主键、登录名）
 #  validator:
 #    id: '[a-zA-Z0-9_\-/#\u4e00-\u9fa5]{0,64}'
@@ -480,6 +500,10 @@ logging:
 #    
 #  # 核心模块的Web功能（仅作为微服务时设为false）
 #  core: 
+#    enabled: true
+#  
+#  # 在线API文档工具
+#  swagger: 
 #    enabled: true
 
 # 错误页面500.html是否输出错误信息（正式环境，为提供安全性可设置为false）

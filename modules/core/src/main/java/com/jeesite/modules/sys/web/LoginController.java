@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.jeesite.common.codec.DesUtils;
 import com.jeesite.common.config.Global;
 import com.jeesite.common.lang.StringUtils;
@@ -307,6 +308,7 @@ public class LoginController extends BaseController{
 		// 非无类型用户，自动根据用户类型设置默认菜单的归属系统（个性化示例）
 		//if (!User.USER_TYPE_NONE.equals(user.getUserType())){
 		//	session.setAttribute("sysCode", user.getUserType());
+		//	UserUtils.removeCache(UserUtils.CACHE_AUTH_INFO+"_"+session.getId());
 		//}
 		
 		// 返回指定用户类型的首页视图
@@ -344,6 +346,7 @@ public class LoginController extends BaseController{
 	@RequiresPermissions("user")
 	@RequestMapping(value = "menuTree")
 	@ResponseBody
+	@JsonView(Menu.SimpleView.class)
 	public List<Menu> menuTree(String parentCode) {
 		if (StringUtils.isNotBlank(parentCode)){
 			return UserUtils.getMenuListByParentCode(parentCode);

@@ -7,7 +7,7 @@ import java.security.SecureRandom;
 import java.util.UUID;
 
 import com.jeesite.common.codec.EncodeUtils;
-import com.jeesite.common.lang.ObjectUtils;
+import com.jeesite.common.lang.NumberUtils;
 import com.jeesite.common.lang.StringUtils;
 
 /**
@@ -42,6 +42,13 @@ public class IdGenerate {
 		random.nextBytes(randomBytes);
 		return EncodeUtils.encodeBase62(randomBytes);
 	}
+
+	/**
+	 * 使用SecureRandom随机生成指定范围的Integer. 
+	 */
+	public static int randomInt(int min, int max) {
+		return random.nextInt(max) % (max - min + 1) + min;
+	}
 	
 	/**
 	 * 获取新唯一编号（18为数值）
@@ -72,7 +79,7 @@ public class IdGenerate {
 			}
 			String prefix = str.substring(0, lastNotNumIndex + 1);
 			String numStr = str.substring(lastNotNumIndex + 1, str.length());
-			long num = ObjectUtils.toLong(numStr);
+			long num = NumberUtils.isCreatable(numStr) ? Long.valueOf(numStr) : 0;
 //			System.out.println("处理前："+str);
 			str = prefix + StringUtils.leftPad(String.valueOf(num + 1), numStr.length(), "0");
 //			System.out.println("处理后："+str);
@@ -95,6 +102,7 @@ public class IdGenerate {
 //		System.out.println(nextCode("EC02T099"));
 //		System.out.println(nextCode("EC02T100"));
 //		System.out.println(nextCode("EC02T10A"));
+//		System.out.println(nextCode("1123117153417957377"));
 ////		// 数值型ID重复验证测试
 ////		Set<String> set = SetUtils.newHashSet();
 ////		try{

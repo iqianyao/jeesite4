@@ -95,7 +95,7 @@ public class EmpUserController extends BaseController {
 	public Page<EmpUser> listData(EmpUser empUser, Boolean isAll, String ctrlPermi, HttpServletRequest request, HttpServletResponse response) {
 		empUser.getEmployee().getOffice().setIsQueryChildren(true);
 		empUser.getEmployee().getCompany().setIsQueryChildren(true);
-		if (!(isAll != null && isAll)){
+		if (!(isAll != null && isAll) || Global.isStrictMode()){
 			empUserService.addDataScopeFilter(empUser, ctrlPermi);
 		}
 		empUser.setPage(new Page<>(request, response));
@@ -123,9 +123,11 @@ public class EmpUserController extends BaseController {
 		Post post = new Post();
 		model.addAttribute("postList", postService.findList(post));
 		
-		// 获取当前用户所拥有的岗位
 		if (StringUtils.isNotBlank(employee.getEmpCode())){
+			// 获取当前用户所拥有的岗位
 			employee.setEmployeePostList(employeeService.findEmployeePostList(employee));
+			// 获取当前员工关联的附属机构信息
+			employee.setEmployeeOfficeList(employeeService.findEmployeeOfficeList(employee));
 		}
 		
 		// 获取当前编辑用户的角色和权限
@@ -175,7 +177,7 @@ public class EmpUserController extends BaseController {
 	public void exportData(EmpUser empUser, Boolean isAll, String ctrlPermi, HttpServletResponse response) {
 		empUser.getEmployee().getOffice().setIsQueryChildren(true);
 		empUser.getEmployee().getCompany().setIsQueryChildren(true);
-		if (!(isAll != null && isAll)){
+		if (!(isAll != null && isAll) || Global.isStrictMode()){
 			empUserService.addDataScopeFilter(empUser, ctrlPermi);
 		}
 		List<EmpUser> list = empUserService.findList(empUser);
@@ -367,7 +369,7 @@ public class EmpUserController extends BaseController {
 		empUser.setRoleCode(roleCode);
 		empUser.setStatus(User.STATUS_NORMAL);
 		empUser.setUserType(User.USER_TYPE_EMPLOYEE);
-		if (!(isAll != null && isAll)) {
+		if (!(isAll != null && isAll) || Global.isStrictMode()) {
 			empUserService.addDataScopeFilter(empUser, ctrlPermi);
 		}
 		List<EmpUser> list = empUserService.findList(empUser);
